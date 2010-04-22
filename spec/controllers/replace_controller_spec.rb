@@ -23,9 +23,11 @@ describe ReplaceController do
     end
 
     it 'should be able to match the text with another matchers' do
-      response.should replace_html_of(:element).with_something_that {
-        have_tag('div')
-      }
+      pending do
+        response.should replace_html_of(:element).with_something_that {
+          have_tag('div')
+        }
+      end
     end
   end
 

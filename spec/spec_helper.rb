@@ -10,8 +10,9 @@ require 'active_record'
 
 require 'spec/resources/controllers/application'
 require 'spec/resources/controllers/replace_controller'
+require 'spec/resources/models/person'
 
-require 'replace_matcher'
+require 'controllers/replace_matcher'
 
 RAILS_ROOT = File.dirname(__FILE__) + "/spec/resources"
 require 'initializer'
