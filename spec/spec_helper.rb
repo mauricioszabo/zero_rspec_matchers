@@ -10,6 +10,7 @@ require 'active_record'
 
 require 'spec/resources/controllers/application'
 require 'spec/resources/controllers/replace_controller'
+require 'spec/resources/controllers/widgets_controller'
 require 'spec/resources/models/person'
 
 require 'controllers/replace_matcher'
