@@ -6,51 +6,72 @@ module Controllers
     def initialize(id = :any, kind = :html)
       @id = id
       @kind = kind
-      
       @should_failure = "expected text or response to replace #@kind"
       @should_failure += " of element \"#@id\"" if @id != :any
     end
   
     def matches?(target)
+      target = extract_string(target)  
+      @matches = find_id_and_text(target)
+      matches_all_conditions?
+    end
+
+    private
+    def extract_string(target)
       target = target.body if target.respond_to? :body
-      target = target.gsub("\\u003C", "<").gsub("\\u003E", ">")
-  
-      @matches = if @kind == :html
+      target.gsub("\\u003C", "<").gsub("\\u003E", ">")
+    end
+
+    def find_id_and_text(target)
+      if @kind == :html
         target.scan(REPLACE_HTML_REGEX)
       else
         target.scan(REPLACE_REGEX)
       end
-      
-      if @matches.empty?
-        false
+    end
+
+    def matches_all_conditions?
+      return false if @matches.empty?
+      if @block.nil?
+        @matches.any? { |id, text| matches_id_and_text?(id, text) }
       else
-        if @id.is_a?(String)
-          if @text.nil?
-            @matches.any? { |id, text| id == @id }
-          else
-            @matches.any? { |id, text| id == @id && text == @text }
-          end
-        else
-          if @text.nil?
-            true
-          else
-            @matches.any? { |id, text| text == @text }
-          end
-        end
+        matches_all_with_block?
       end
     end
-  
-    def with(text)
-      @text = text
-      @should_failure += " with text \"#@text\""
+
+    def matches_all_with_block?
+      @matches.any? { |id, text| matches_with_block?(id, text) }
+    end
+
+    def matches_with_block?(id, text)
+      return false unless matches_id_and_text?(id, text)
+      @block.call(text)
+      return true
+    end
+
+    def matches_id_and_text?(id, text)
+      matches_id = @id.is_a?(String) ? id == @id : true
+      matches_text = @text.nil? ? true : @text === text
+      matches_text && matches_id
+    end
+
+    def run_block(text)
+      return true if @block.nil?
+      @block.call(text)
+    end
+
+    public
+    def with(text = nil, &block)
+      if block
+        @block = block
+      else
+        @text = text
+        @should_failure += " with text \"#@text\""
+      end
+
       self
     end
-  
-    def with_something_that(&b)
-      p b
-      instance_eval(&b)
-    end
-  
+
     def failure_message_for_should
       @should_failure
     end
