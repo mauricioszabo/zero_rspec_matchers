@@ -22,14 +22,14 @@ class WidgetsMatcher
 end
 
 def have_selected_element(element)
-  matcher = have_tag('option[selected]', :text => element)
+  matcher = have_tag('option[selected]', :text => /#{Regexp.escape element}/)
   WidgetsMatcher.new matcher, element
 end
 
 def have_selected_box(element)
   matchers = []
   assert_select 'input[type=checkbox][checked]' do |elements|
-    matchers = elements.collect { |e| have_tag('label', :text => element) }
+    matchers = elements.collect { |e| have_tag('label', :text => /#{Regexp.escape element}/) }
   end
   WidgetsMatcher.new matchers, element
 end
@@ -37,7 +37,7 @@ end
 def have_selected_radio(element)
   matchers = []
   assert_select 'input[type=radio][checked]' do |elements|
-    matchers = elements.collect { |e| have_tag('label', :text => element) }
+    matchers = elements.collect { |e| have_tag('label', :text => /#{Regexp.escape element}/) }
   end
   WidgetsMatcher.new matchers, element
 end
